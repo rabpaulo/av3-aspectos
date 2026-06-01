@@ -1,0 +1,163 @@
+package compiler;
+
+import java_cup.runtime.*;
+import java.util.*;
+import compiler.Semantic;
+import compiler.Parameter;
+import compiler.VariableDecl;
+
+/* Terminals */
+terminal String ID;
+terminal Integer INT_CONST;
+terminal Double FLOAT_CONST;
+terminal IF, ELSE, WHILE, RETURN, INT, FLOAT, VOID;
+terminal PLUS, MINUS, MUL, DIV, EQEQ, NEQ, LT, GT, LE, GE, ASSIGN;
+terminal LPAREN, RPAREN, LBRACE, RBRACE, SEMI, COMMA;
+
+/* Non-terminals */
+non terminal program, unit_list, unit, function, stmt_list, stmt, var_decl, block;
+non terminal String type, expr, expr_opt;
+non terminal java.util.List param_list, id_init_list, args, arg_list;
+
+/* precedence to reduce conflicts */
+precedence right ASSIGN;
+precedence left PLUS, MINUS;
+precedence left MUL, DIV;
+precedence nonassoc EQEQ, NEQ, LT, GT, LE, GE;
+
+start with program;
+
+program ::= unit_list
+                 {: System.out.println("[Sintax] Iniciando parse do programa"); :}
+               ;
+
+unit_list ::= /* empty */
+                     {: System.out.println("[Sintax] unit_list -> empty"); :}
+                 | unit_list unit
+                     {: System.out.println("[Sintax] unit_list -> unit_list unit"); :}
+                 ;
+
+unit ::= function
+          | var_decl
+          ;
+
+function ::= type:t ID:id LPAREN param_list:pl RPAREN LBRACE
+                       {:
+                             java.util.List<Parameter> params = pl == null ? new ArrayList<Parameter>() : pl;
+                             Semantic.instance.declareFunction(id, t, params);
+                             Semantic.instance.enterFunction(t);
+                             for (Object o : params) {
+                                    Parameter p = (Parameter) o;
+                                    Semantic.instance.declareVariable(p.name, p.type);
+                             }
+                       :}
+                                          stmt_list RBRACE
+                                                 {: Semantic.instance.exitFunction(); System.out.println("[Sintax] function end"); :}
+                 ;
+
+type ::= INT  {: RESULT = "int"; :}
+          | FLOAT {: RESULT = "float"; :}
+          | VOID  {: RESULT = "void"; :}
+          ;
+
+param_list ::= /* empty */ {: RESULT = new ArrayList(); :}
+                      | param_list:pl COMMA type:t ID:id {: pl.add(new Parameter(id, t)); RESULT = pl; :}
+                      | type:t ID:id {: ArrayList l = new ArrayList(); l.add(new Parameter(id, t)); RESULT = l; :}
+                      ;
+
+stmt_list ::= /* empty */ {: RESULT = null; :}
+                     | stmt_list stmt {: /* noop */ :}
+                     ;
+
+stmt ::= var_decl
+          | expr SEMI   {: System.out.println("[Sintax] expr stmt"); :}
+          | IF LPAREN expr RPAREN stmt {: System.out.println("[Sintax] if stmt"); :}
+          | IF LPAREN expr RPAREN stmt ELSE stmt {: System.out.println("[Sintax] if-else stmt"); :}
+          | WHILE LPAREN expr RPAREN stmt {: System.out.println("[Sintax] while stmt"); :}
+          | RETURN expr_opt:eo SEMI {:
+                     String retType = Semantic.instance.currentFunctionReturnType();
+                     if (eo == null) {
+                            if (retType != null && !"void".equals(retType)) Semantic.instance.error("Missing return value for function expecting " + retType);
+                     } else {
+                            String exprType = (String) eo;
+                            if (retType != null && !Semantic.instance.isCompatible(retType, exprType))
+                                   Semantic.instance.error("Return type mismatch: expected " + retType + " got " + exprType);
+                     }
+                     System.out.println("[Sintax] return stmt");
+               :}
+          | block
+          ;
+
+expr_opt ::= /* empty */ {: RESULT = null; :}
+                 | expr:e {: RESULT = e; :}
+                 ;
+
+block ::= LBRACE {: Semantic.instance.enterScope(); :} stmt_list RBRACE {: Semantic.instance.exitScope(); System.out.println("[Sintax] block"); :}
+              ;
+
+var_decl ::= type:t id_init_list:il SEMI {:
+                      for (Object od : (java.util.List) il) {
+                             VariableDecl vd = (VariableDecl) od;
+                             Semantic.instance.declareVariable(vd.name, t);
+                             if (vd.hasInit) {
+                                    String initType = vd.initType;
+                                    if (initType != null && !Semantic.instance.isCompatible(t, initType)) {
+                                           Semantic.instance.error("Type mismatch in initialization of variable " + vd.name + ": expected " + t + " got " + initType);
+                                    }
+                             }
+                      }
+                      System.out.println("[Sintax] var_decl");
+                 :}
+                 ;
+
+id_init_list ::= ID:id {: java.util.List l = new ArrayList(); l.add(new VariableDecl(id, null, false)); RESULT = l; :}
+                        | ID:id ASSIGN expr:e {: java.util.List l = new ArrayList(); l.add(new VariableDecl(id, (String)e, true)); RESULT = l; :}
+                        | id_init_list:il COMMA ID:id {: il.add(new VariableDecl(id, null, false)); RESULT = il; :}
+                        | id_init_list:il COMMA ID:id ASSIGN expr:e {: il.add(new VariableDecl(id, (String)e, true)); RESULT = il; :}
+                        ;
+
+args ::= /* empty */ {: RESULT = new ArrayList(); :}
+          | arg_list:al {: RESULT = al; :}
+          ;
+
+arg_list ::= expr:e {: java.util.List l = new ArrayList(); l.add(e); RESULT = l; :}
+                 | arg_list:al COMMA expr:e {: al.add(e); RESULT = al; :}
+                 ;
+
+expr ::= ID:id ASSIGN expr:e              {: Semantic.instance.checkAssignment(id, (String)e); RESULT = e; :}
+          | expr:e1 PLUS expr:e2            {: String t = Semantic.instance.arithmeticType((String)e1, (String)e2); if (t==null) Semantic.instance.error("Invalid operands for +"); RESULT = t; :}
+          | expr:e1 MINUS expr:e2           {: String t = Semantic.instance.arithmeticType((String)e1, (String)e2); if (t==null) Semantic.instance.error("Invalid operands for -"); RESULT = t; :}
+          | expr:e1 MUL expr:e2             {: String t = Semantic.instance.arithmeticType((String)e1, (String)e2); if (t==null) Semantic.instance.error("Invalid operands for *"); RESULT = t; :}
+          | expr:e1 DIV expr:e2             {: String t = Semantic.instance.arithmeticType((String)e1, (String)e2); if (t==null) Semantic.instance.error("Invalid operands for /"); RESULT = t; :}
+       | expr:e1 EQEQ expr:e2           {: String tt = Semantic.instance.arithmeticType((String)e1, (String)e2); if (tt==null) Semantic.instance.error("Invalid operands for =="); RESULT = "int"; :}
+       | expr:e1 NEQ expr:e2            {: String tt = Semantic.instance.arithmeticType((String)e1, (String)e2); if (tt==null) Semantic.instance.error("Invalid operands for !="); RESULT = "int"; :}
+       | expr:e1 LT expr:e2             {: String tt = Semantic.instance.arithmeticType((String)e1, (String)e2); if (tt==null) Semantic.instance.error("Invalid operands for <"); RESULT = "int"; :}
+       | expr:e1 GT expr:e2             {: String tt = Semantic.instance.arithmeticType((String)e1, (String)e2); if (tt==null) Semantic.instance.error("Invalid operands for >"); RESULT = "int"; :}
+       | expr:e1 LE expr:e2             {: String tt = Semantic.instance.arithmeticType((String)e1, (String)e2); if (tt==null) Semantic.instance.error("Invalid operands for <="); RESULT = "int"; :}
+       | expr:e1 GE expr:e2             {: String tt = Semantic.instance.arithmeticType((String)e1, (String)e2); if (tt==null) Semantic.instance.error("Invalid operands for >="); RESULT = "int"; :}
+          | LPAREN expr:e RPAREN            {: RESULT = e; :}
+          | ID:id LPAREN args:a RPAREN      {:
+                     java.util.List argtypes = a == null ? new ArrayList() : a;
+                     Semantic.FunctionInfo fi = Semantic.instance.lookupFunction(id);
+                     if (fi == null) {
+                            Semantic.instance.error("Call to undefined function: " + id);
+                            RESULT = "int";
+                     } else {
+                            if (fi.paramTypes.size() != argtypes.size()) {
+                                   Semantic.instance.error("Argument count mismatch in call to " + id + ": expected " + fi.paramTypes.size() + " got " + argtypes.size());
+                            } else {
+                                   for (int i=0;i<fi.paramTypes.size() && i<argtypes.size(); i++) {
+                                          String expect = fi.paramTypes.get(i);
+                                          String got = (String) argtypes.get(i);
+                                          if (!Semantic.instance.isCompatible(expect, got)) {
+                                                 Semantic.instance.error("Argument type mismatch in call to " + id + " at position " + (i+1) + ": expected " + expect + " got " + got);
+                                          }
+                                   }
+                            }
+                            RESULT = fi.returnType;
+                     }
+               :}
+          | ID:id                           {: String t = Semantic.instance.lookupVariable(id); if (t==null) { Semantic.instance.error("Use of undeclared variable: " + id); RESULT = "int"; } else RESULT = t; :}
+          | INT_CONST                    {: RESULT = "int"; :}
+          | FLOAT_CONST                  {: RESULT = "float"; :}
+          ;
