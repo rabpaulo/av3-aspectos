@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026/Arch Linux) (preloaded format=pdflatex 2026.5.4)  31 MAY 2026 20:58
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026/Arch Linux) (preloaded format=pdflatex 2026.5.4)  31 MAY 2026 22:15
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -349,37 +349,37 @@ LaTeX Font Info:    External font `cmex10' loaded for size
 
 {/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}{/usr/share/texmf-dist/fonts
 /enc/dvips/cm-super/cm-super-t1.enc}]
-Overfull \hbox (11.41318pt too wide) in paragraph at lines 50--51
+Overfull \hbox (11.41318pt too wide) in paragraph at lines 52--53
 \T1/cmr/m/n/12 A aná-lise se-mân-tica foi in-te-grada di-re-ta-mente às ações s
 in-tá-ti-cas do ar-quivo \T1/cmtt/m/n/12 sintatico.cup\T1/cmr/m/n/12 ,
  []
 
 [2{/usr/share/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc}]
-Overfull \hbox (22.39102pt too wide) in paragraph at lines 61--61
+Overfull \hbox (22.39102pt too wide) in paragraph at lines 63--63
 []\T1/cmtt/m/n/12 /* Exemplo de input cobrindo: variaveis, funcoes, if-else, wh
 ile, chamadas */ 
  []
 
 [3] [4]
-Overfull \hbox (28.56451pt too wide) in paragraph at lines 157--157
+Overfull \hbox (28.56451pt too wide) in paragraph at lines 159--159
 []\T1/cmtt/m/n/12 {DIGIT}+"."{DIGIT}+([eE][+-]?{DIGIT}+)?   { return new Symbol
 (sym.FLOAT_CONST,[] 
  []
 
 
-Overfull \hbox (28.56451pt too wide) in paragraph at lines 159--159
+Overfull \hbox (28.56451pt too wide) in paragraph at lines 161--161
 []\T1/cmtt/m/n/12 "."{DIGIT}+([eE][+-]?{DIGIT}+)?           { return new Symbol
 (sym.FLOAT_CONST,[] 
  []
 
 
-Overfull \hbox (28.56451pt too wide) in paragraph at lines 161--161
+Overfull \hbox (28.56451pt too wide) in paragraph at lines 163--163
 []\T1/cmtt/m/n/12 {DIGIT}+[eE][+-]?{DIGIT}+                 { return new Symbol
 (sym.FLOAT_CONST,[] 
  []
 
 
-Overfull \hbox (10.04404pt too wide) in paragraph at lines 165--165
+Overfull \hbox (10.04404pt too wide) in paragraph at lines 167--167
 []\T1/cmtt/m/n/12 {INT}      { return new Symbol(sym.INT_CONST, Integer.valueOf
 (yytext())); }[] 
  []
@@ -389,20 +389,13 @@ Overfull \hbox (10.04404pt too wide) in paragraph at lines 165--165
 LaTeX2e <2025-11-01>
 L3 programming layer <2026-01-19>
  ***********
-
-
-Package rerunfilecheck Warning: File `relatorio.out' has changed.
-(rerunfilecheck)                Rerun to get outlines right
-(rerunfilecheck)                or use package `bookmark'.
-
-Package rerunfilecheck Info: Checksums for `relatorio.out':
-(rerunfilecheck)             Before: 4D67B3EE1B4C803730E5436EE92D625E;2656
-(rerunfilecheck)             After:  0164148D026CEA83090EA19D74E4078A;2661.
+Package rerunfilecheck Info: File `relatorio.out' has not changed.
+(rerunfilecheck)             Checksum: 0164148D026CEA83090EA19D74E4078A;2661.
  ) 
 Here is how much of TeX's memory you used:
  10836 strings out of 469495
  167593 string characters out of 5470099
- 598436 words of memory out of 5000000
+ 598438 words of memory out of 5000000
  39381 multiletter control sequences out of 15000+600000
  638104 words of font info for 62 fonts, out of 8000000 for 9000
  16 hyphenation exceptions out of 8191
@@ -414,10 +407,10 @@ m-super/sfrm1200.pfb></usr/share/texmf-dist/fonts/type1/public/cm-super/sfrm144
 0.pfb></usr/share/texmf-dist/fonts/type1/public/cm-super/sfrm2074.pfb></usr/sha
 re/texmf-dist/fonts/type1/public/cm-super/sfti1200.pfb></usr/share/texmf-dist/f
 onts/type1/public/cm-super/sftt1200.pfb>
-Output written on relatorio.pdf (10 pages, 188351 bytes).
+Output written on relatorio.pdf (10 pages, 188590 bytes).
 PDF statistics:
- 177 PDF objects out of 1000 (max. 8388607)
- 146 compressed objects within 2 object streams
+ 180 PDF objects out of 1000 (max. 8388607)
+ 149 compressed objects within 2 object streams
  29 named destinations out of 1000 (max. 500000)
  113 words of extra memory for PDF output out of 10000 (max. 10000000)
 
